@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-#define LOG_N 3 
+#define LOG_N 6 
 #define N (1 << LOG_N)
 #define N_PS 7
 typedef int16_t ptype;
@@ -45,9 +45,8 @@ void fft() {
 		uint8_t BLK_STEP = 2 * (k + 1);
 		uint8_t BF_STEP = 1;
 		uint8_t TF_INDEX_STEP = N >> (k + 1);
-
 		for (uint8_t m = 0; m < N_BLKS_STAGE; m++) {
-			uint8_t BLK_I = m *BLK_STEP;
+                	uint8_t BLK_I = m *BLK_STEP;
 			for (uint8_t n = 0; n < N_BFS_BLOCK; ++n) {
 				uint8_t tf = n * TF_INDEX_STEP;
 				uint8_t i1 = BLK_I + n * BF_STEP;
