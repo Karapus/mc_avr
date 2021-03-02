@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-#define LOG_N 6 
+#define LOG_N 3 
 #define N (1 << LOG_N)
 #define N_PS 7
 typedef int16_t ptype;
@@ -38,19 +38,15 @@ void fft() {
 	#include "reorder.txt"
 	
 	//fft
-	for (uint8_t k = 0; k < LOG_N; ++k) {
-		uint8_t N_BLKS_STAGE = N / (2 * (k + 1));
-		uint8_t N_BFS_BLOCK = 1 << k;
-		uint8_t BF_SPAN = 1 << k;
-		uint8_t BLK_STEP = 2 * (k + 1);
-		uint8_t BF_STEP = 1;
-		uint8_t TF_INDEX_STEP = N >> (k + 1);
-		for (uint8_t m = 0; m < N_BLKS_STAGE; m++) {
-                	uint8_t BLK_I = m *BLK_STEP;
-			for (uint8_t n = 0; n < N_BFS_BLOCK; ++n) {
-				uint8_t tf = n * TF_INDEX_STEP;
-				uint8_t i1 = BLK_I + n * BF_STEP;
-				uint8_t i2 = i1 + BF_SPAN;
+	for (uint8_t i = 1; i <= LOG_N; ++i) {
+		const uint8_t m = 1 << i;
+		for (uint8_t j = 0; j < N; j += m) {
+			uint8_t span = m >> 1;
+			uint8_t tf_k = (1 << LOG_N) >> i;
+			for (uint8_t k = 0; k < span; ++k) {
+				uint8_t tf = k * tf_k;
+				uint8_t i1 = k + j;
+				uint8_t i2 = i1 + span;
 
 				ptype resReCos = pmul(cosLUT[tf], x_re[i2]);
 				ptype resReSin = pmul(sinLUT[tf], x_re[i2]);
@@ -61,7 +57,6 @@ void fft() {
 				x_im[i2] = x_im[i1] - resReSin - resImCos;
 				x_re[i1] = x_re[i1] + resReCos - resImSin;
 				x_im[i1] = x_im[i1] + resReSin + resImCos;
-
 			}
 		}
 	}
