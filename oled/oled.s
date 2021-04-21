@@ -1,4 +1,3 @@
-;#include <avr/io.h>
 TWCR = 0x36
 TWINT = 7
 TWSTA = 5
@@ -16,6 +15,37 @@ MT_SLA_ACK = 0x18
 MT_DATA_ACK = 0x28
 DDRC  = 0x14
 
+.global x_re
+        .data
+        .type   x_re, @object
+        .size   x_re, 128
+x_re:
+        .word	3 
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   0
+        .word   17
+        .word   18
+        .word   19
+        .word   20
+        .word   21
+        .word   22
+        .word   23
+        .word   24
+        .word   25
+        .zero   78
 
 .section .text
 ERROR:
@@ -119,22 +149,69 @@ sendCmd 0x22	;Set Page Address
 sendCmd 0	;start
 sendCmd 7	;end
 sendByte 0x40	;Next is data
-sendByte 0xFF
-sendByte 0x00
-sendByte 0xFF
-sendByte 0xFF
-sendByte 0xFF
-sendByte 0xFF
-sendByte 0xFF
-sendByte 0xFF
+
+ldi r17, 8
+l10:
+ldi r18, 128
+	l20:
+	clr r16
+	rcall TWI_SendByte
+	dec r18
+	brne l20
+dec r17
+brne l10
+
+;sendByte 0xFF
+ldi r30, lo8(x_re)
+ldi r31, hi8(x_re)
+ld r16, Z
+rcall TWI_SendByte
+adiw Z, 1
+ld r16, Z
+rcall TWI_SendByte
+ldi r19, 1
+ldi r18, 0
+l3:
+ld r1, Y
+adiw Y, 2
+cp r1, r18
+brne post
+or r16, r19
+post:
+lsl r19
+brne l3
+;rcall TWI_SendByte
+;ldi r17, 8
+;l1:
+;ldi r18, 128
+;	l2:
+;	clr r16
+;	ldi r19, 1
+;		l3:
+;		ld r1, Y+
+;		cp r1, r18
+;		brne post
+;		or r16, r19
+;		post:
+;		lsl r19
+;		brne l3
+;	sbiw Y, 8
+;	rcall TWI_SendByte
+;	dec r18
+;	brne l2
+;dec r17
+;brne l1
+
 
 ;-----------------------TWI_Stop---------------------------
 ;Transmit STOP.
 ldi r16, (1<<TWINT)|(1<<TWEN)|(1<<TWSTO)
 out TWCR, r16
+l:
+rjmp l
 
 TWI_SendByte:
-;Load DATA. And start transmission of address.
+;Load DATA. And start transmission.
 out TWDR, r16
 ldi r16, (1<<TWINT)|(1<<TWEN)
 out TWCR, r16
