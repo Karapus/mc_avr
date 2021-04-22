@@ -5,7 +5,7 @@
 #define Dev_Adr		0b00111100
 
 void twi_Init() {
-	TWBR = (((CPU_F)/(SCL_F) - 16)/2);
+	TWBR = (((F_CPU)/(SCL_F) - 16)/2);
 	TWSR = 0;
 }
 

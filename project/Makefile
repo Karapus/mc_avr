@@ -1,8 +1,8 @@
 MCU = atmega8535
-CPU_F = 1200000
+F_CPU = 1000000
 CC = avr-gcc
 OBJCOPY = avr-objcopy
-CFLAGS = -Wall -g -Os -mmcu=${MCU} -DCPU_F=${CPU_F}
+CFLAGS = -Wall -g -Os -mmcu=${MCU} -DF_CPU=${F_CPU}
 TARGET = main
 SRCS = main.c
 
